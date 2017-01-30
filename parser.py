@@ -1,5 +1,8 @@
 import json
+from time import sleep
+
 import requests
+import sys
 
 try:
     from BeautifulSoup import BeautifulSoup
@@ -16,7 +19,10 @@ def str_to_min(ready_in_time_str):
     else:
         hour = 0
     ready_in_time_str = ready_in_time_str.replace("m", "").strip()
-    min = int(ready_in_time_str)
+    if not ready_in_time_str:
+        min = 0
+    else:
+        min = int(ready_in_time_str)
     return hour * 60 + min
 
 
@@ -74,6 +80,29 @@ def parse_single_page(url_suff):
     return ret
 
 
+def get_recipes_from_page(page_num):
+    res = requests.get(BASE_URL + "/recipes/?page=" + str(page_num))
+    res_html = BeautifulSoup(res.text, "html.parser")
+    recipes_list = []
+    article_tags = res_html.find_all("article")
+    for i in article_tags:
+        try:
+            if i.find("a")["href"].startswith("/recipe/"):
+                recipes_list.append(i.find("a")["href"])
+        except (KeyError, TypeError):
+            pass
+    return recipes_list
+
+
 if __name__ == '__main__':
-    parse_single_page("/recipe/45954/roast-sticky-chicken-rotisserie-style/")
-    # print(str_to_min(" 10 m"))
+    page_num = sys.argv[1]
+    page_end = sys.argv[2]
+    for i in range(int(page_num), int(page_end)):
+        recipes_list = get_recipes_from_page(i)
+        if not recipes_list:
+            break
+        for page in recipes_list:
+            ret = parse_single_page(page)
+            with open("data", "a") as f:
+                f.write(json.dumps(ret) + "\n")
+            sleep(1)
