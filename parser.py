@@ -50,7 +50,8 @@ def parse_single_page(url_suff):
     ingredients = []
     for col in res_html.find_all("ul", id=lambda x: x and x.startswith("lst_ingredients_")):
         for ing in col.find_all("li"):
-            ingredients.append(ing.text.replace("ADVERTISEMENT", "").strip())
+            if "Add all ingredients to list" not in ing.text:
+                ingredients.append(ing.text.replace("ADVERTISEMENT", "").strip())
     prep_time_str = res_html.find("time", itemprop="prepTime").text
     prep_time_min = str_to_min(prep_time_str.lower())
     cook_time_min = ready_in_time_min - prep_time_min
@@ -76,7 +77,7 @@ def parse_single_page(url_suff):
     }
     # debug
     # with open("examples/debug.json", "w") as f:
-    #     json.dump(ret, f)
+    #     json.dump(ret, f, indent=4)
     # print(ret)
 
     return ret
