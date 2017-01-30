@@ -9,7 +9,7 @@ try:
 except ImportError:
     from bs4 import BeautifulSoup
 
-BASE_URL = "http://allrecipes.com/"
+BASE_URL = "http://allrecipes.com"
 
 
 def str_to_min(ready_in_time_str):
@@ -60,6 +60,7 @@ def parse_single_page(url_suff):
         }):
         if step.text:
             directions.append(step.text)
+    url = BASE_URL + url_suff
 
     ret = {
         "title":        title,
@@ -70,7 +71,8 @@ def parse_single_page(url_suff):
         "prep_time":    prep_time_min,
         "cook_time":    cook_time_min,
         "ingredients":  ingredients,
-        "directions":   directions
+        "directions":   directions,
+        "url": url
     }
     # debug
     # with open("examples/debug.json", "w") as f:
@@ -105,6 +107,6 @@ if __name__ == '__main__':
             ret = parse_single_page(page)
             with open("data", "a") as f:
                 f.write(json.dumps(ret) + "\n")
-            with open("savestate", "w") as f:
-                f.write(str(i))
             sleep(1)
+        with open("savestate", "w") as f:
+            f.write("last page parsed is: " + str(i))
