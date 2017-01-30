@@ -105,4 +105,6 @@ if __name__ == '__main__':
             ret = parse_single_page(page)
             with open("data", "a") as f:
                 f.write(json.dumps(ret) + "\n")
+            with open("savestate", "w") as f:
+                f.write(str(i))
             sleep(1)
