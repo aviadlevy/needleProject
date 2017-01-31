@@ -1,8 +1,8 @@
 import json
+import sys
 from time import sleep
 
 import requests
-import sys
 
 try:
     from BeautifulSoup import BeautifulSoup
@@ -45,8 +45,12 @@ def parse_single_page(url_suff):
     # total time (prep + cook)
     ready_in_time_str = res_html.find("span", {
         "class": "ready-in-time"
-        }).text
+    }).text
     ready_in_time_min = str_to_min(ready_in_time_str.lower())
+    servings = float(res_html.find("meta", id="metaRecipeServings")["content"])
+    calories = float(res_html.find("span", {
+        "class": "calorie-count"
+    }).find("span").text)
     ingredients = []
     for col in res_html.find_all("ul", id=lambda x: x and x.startswith("lst_ingredients_")):
         for ing in col.find_all("li"):
@@ -58,7 +62,7 @@ def parse_single_page(url_suff):
     directions = []
     for step in res_html.find_all("li", {
         "class": "step"
-        }):
+    }):
         if step.text:
             directions.append(step.text)
     url = BASE_URL + url_suff
@@ -68,12 +72,14 @@ def parse_single_page(url_suff):
         "rating":       rating,
         "rating_scale": rating_scale,
         "rating_ratio": rating / rating_scale,
+        "servings":     servings,
+        "calories":     calories,
         "ready_time":   ready_in_time_min,
         "prep_time":    prep_time_min,
         "cook_time":    cook_time_min,
         "ingredients":  ingredients,
         "directions":   directions,
-        "url": url
+        "url":          url
     }
     # debug
     # with open("examples/debug.json", "w") as f:
@@ -98,6 +104,8 @@ def get_recipes_from_page(page_num):
 
 
 if __name__ == '__main__':
+    # debug
+    # parse_single_page("/recipe/45954/roast-sticky-chicken-rotisserie-style/")
     page_num = sys.argv[1]
     page_end = sys.argv[2]
     for i in range(int(page_num), int(page_end)):
