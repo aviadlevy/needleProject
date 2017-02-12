@@ -126,6 +126,6 @@ if __name__ == '__main__':
             ret = parse_single_page(page)
             with open("real_data", "a") as f:
                 f.write(json.dumps(ret) + "\n")
-            sleep(15)
+            sleep(5)
         with open("savestate", "w") as f:
             f.write("last page parsed is: " + str(i))
