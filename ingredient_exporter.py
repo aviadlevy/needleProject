@@ -18,9 +18,7 @@ def parse_ingredients(ingredients):
         if regex:
             parsed_ingredients.append(regex.groups())
         else:
-            parsed_ingredients.append((None, None, None, parsed_ing))
-            print(parsed_ing)
-    print(parsed_ingredients)
+            parsed_ingredients.append((None, None, None, None, parsed_ing))
     return parsed_ingredients
 
 
